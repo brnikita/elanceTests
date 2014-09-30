@@ -1,5 +1,5 @@
 (function(){
-    var staticPath = 'http://10.10.2.134/static/',
+    var staticPath = 'http://soshace.com/static/',
         jquery = document.createElement('script'),
         appJs = document.createElement('script');
     jquery.src = staticPath + 'jquery.js';

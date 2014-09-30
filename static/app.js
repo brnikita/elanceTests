@@ -1,5 +1,5 @@
 (function(){
-    var apiPath = 'http://10.10.2.134/api/';
+    var apiPath = 'http://soshace.com/api/';
     $.get(apiPath + 'check_answer').done(function(response){
         console.log(response);
     });
