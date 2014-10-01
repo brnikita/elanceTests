@@ -99,6 +99,7 @@
                 return;
             }
 
+            console.log('--------------New question-----------------------------');
             if (!correctTid) {
                 console.log('Something is wrong, tid:', tid);
                 return;
