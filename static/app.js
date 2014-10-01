@@ -18,6 +18,14 @@
         _stopTest: false,
 
         /**
+         * Варианты ответ сервера
+         *
+         * @field
+         * @type {Array | null}
+         */
+        questionChoices: null,
+
+        /**
          * Поле содержит имя хоста и алиас API
          *
          * @field
@@ -65,82 +73,118 @@
          * @returns {undefined}
          */
         iterator: function () {
-            var _this = this;
+            this.getQuestion().done(this.getQuestionHandler.bind(this));
+        },
 
-            this.getQuestion().done(function (response) {
-                var tid = response[0].tid,
-                    correctTids = [
-                        'practice_question',
-                        'question',
-                        'bonus_question',
-                        'bonus_ready_to_continue'
-                    ],
-                    correctTid = correctTids.indexOf(tid) !== -1;
+        /**
+         * Метод обработчик получения вопроса
+         *
+         * @method
+         * @param {Object} response
+         */
+        getQuestionHandler: function (response) {
+            var tid = response[0].tid,
+            //TODO: разобраться, что значит каждый заголовок
+                correctTids = [
+                    'practice_question',
+                    'question',
+                    'bonus_question',
+                    'bonus_ready_to_continue'
+                ],
+                correctTid = correctTids.indexOf(tid) !== -1;
 
-                if (tid === 'bonus_intro') {
-                    _this.iterator();
-                    return;
-                }
+            if (tid === 'bonus_intro') {
+                this.iterator();
+                return;
+            }
 
-                if (!correctTid) {
-                    console.log('Something wrong, tid:', tid);
-                    return;
-                }
+            if (!correctTid) {
+                console.log('Something wrong, tid:', tid);
+                return;
+            }
 
-                var context = response[0].ctx,
-                    question = context.question,
-                    choices = context.choices;
+            var context = response[0].ctx,
+                question = context.question;
 
-                console.log('Question: ', question);
-                _this.getAnswer(question).done(function (response) {
-                    var answer = response.answer,
-                        answerNumber = choices.indexOf(answer),
-                        timeOut = Math.floor((Math.random() * 2000) + 1);
+            this.questionChoices = context.choices;
+            console.log('Question: ', question);
+            this.getAnswer(question).done(this.getAnswerHandler.bind(this));
+        },
 
-                    if (answerNumber === -1) {
-                        console.log('Answer not found');
-                        answerNumber = _this.getRandomChoice(choices);
-                    } else {
-                        console.log('Answer fond: ', answer);
-                    }
-                    setTimeout(function () {
-                        _this.checkQuestion(answerNumber).done(function (response) {
-                            var tid = response[0].tid,
-                                correctTids = [
-                                    'question_answered',
-                                    'question',
-                                    'bonus_question',
-                                    'bonus_ready_to_continue',
-                                    'bonus_question_answered',
-                                    'question_answered_done_bonus'
-                                ],
-                                correctTid = correctTids.indexOf(tid) !== -1;
+        /**
+         * Метод обработчик ответа на вопрос с нашего сервера
+         *
+         * @method
+         * @param {Object} response
+         * @returns {undefined}
+         */
+        getAnswerHandler: function (response) {
+            var answer = response.answer,
+                choices = this.questionChoices,
+                answerNumber = choices.indexOf(answer),
+                timeOut = Math.floor((Math.random() * 2000) + 1);
 
-                            if (!correctTid) {
-                                console.log('Something wrong, tid: ', tid);
-                                return;
-                            }
+            if (answerNumber === -1) {
+                console.log('Answer not found');
+                answerNumber = this.getRandomChoice(choices);
+            } else {
+                console.log('Answer fond: ', answer);
+            }
 
-                            var context = response[0].ctx,
-                                answerNumber = context.answer,
-                                correct = context.correct,
-                                answer = choices[answerNumber],
-                                score = context.score;
+            setTimeout(function () {
+                this.checkQuestion(answerNumber).done(this.checkQuestionHandler.bind(this));
+            }.bind(this), timeOut);
+        },
 
-                            if (!correct) {
-                                console.log('Correct answer: ', answer);
-                                _this.saveAnswer(question, answer);
-                            }
+        /**
+         * Метод обработчик проверки вопроса
+         *
+         * @method
+         * @param {Object} response ответ сервера опросника
+         * @returns {undefined}
+         */
+        checkQuestionHandler: function (response) {
+            var tid = response[0].tid,
+            //TODO: разобраться, что значит каждый заголовок
+                correctTids = [
+                    'question_answered',
+                    'question',
+                    'bonus_question',
+                    'bonus_ready_to_continue',
+                    'bonus_question_answered',
+                    'practice_question_answered',
+                    'question_answered_done_bonus'
+                ],
+                correctTid = correctTids.indexOf(tid) !== -1;
 
-                            console.log('score: ', score);
+            if (!correctTid) {
+                console.log('Something wrong, tid: ', tid);
+                return;
+            }
 
-                            if (!_this._stopTest) {
-                                _this.iterator();
-                            }
-                        });
-                    }, timeOut);
-                })
-            });
+            if(tid === 'question'){
+                this.getQuestionHandler(response);
+                return;
+            }
+
+            var context = response[0].ctx,
+                answerNumber = context.answer,
+                correct = context.correct,
+                choices = context.choices,
+                answer = choices[answerNumber],
+                question = context.question,
+                score = context.score;
+
+            if (!correct) {
+                console.log('Correct answer: ', answer);
+                this.saveAnswer(question, answer);
+            }
+
+            console.log('score: ', score);
+
+            if (!this._stopTest) {
+                this.iterator();
+            }
         },
 
         /**
