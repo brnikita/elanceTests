@@ -100,7 +100,7 @@
             }
 
             if (!correctTid) {
-                console.log('Something wrong, tid:', tid);
+                console.log('Something is wrong, tid:', tid);
                 return;
             }
 
@@ -126,10 +126,10 @@
                 timeOut = Math.floor((Math.random() * 2000) + 1);
 
             if (answerNumber === -1) {
-                console.log('Answer not found');
+                console.log('Answer have not found');
                 answerNumber = this.getRandomChoice(choices);
             } else {
-                console.log('Answer fond: ', answer);
+                console.log('Answer have found: ', answer);
             }
 
             setTimeout(function () {
