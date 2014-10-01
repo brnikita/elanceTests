@@ -77,6 +77,11 @@
                     ],
                     correctTid = correctTids.indexOf(tid) !== -1;
 
+                if (tid === 'bonus_intro') {
+                    _this.iterator();
+                    return;
+                }
+
                 if (!correctTid) {
                     console.log('Something wrong, tid:', tid);
                     return;
@@ -86,13 +91,17 @@
                     question = context.question,
                     choices = context.choices;
 
+                console.log('Question: ', question);
                 _this.getAnswer(question).done(function (response) {
                     var answer = response.answer,
                         answerNumber = choices.indexOf(answer),
                         timeOut = Math.floor((Math.random() * 2000) + 1);
 
                     if (answerNumber === -1) {
+                        console.log('Answer not found');
                         answerNumber = _this.getRandomChoice(choices);
+                    } else {
+                        console.log('Answer fond: ', answer);
                     }
                     setTimeout(function () {
                         _this.checkQuestion(answerNumber).done(function (response) {
@@ -108,7 +117,7 @@
                                 correctTid = correctTids.indexOf(tid) !== -1;
 
                             if (!correctTid) {
-                                console.log('Something wrong, tid:', tid);
+                                console.log('Something wrong, tid: ', tid);
                                 return;
                             }
 
@@ -119,6 +128,7 @@
                                 score = context.score;
 
                             if (!correct) {
+                                console.log('Correct answer: ', answer);
                                 _this.saveAnswer(question, answer);
                             }
 
