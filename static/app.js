@@ -90,11 +90,14 @@
                     'question',
                     'bonus_question',
                     'bonus_ready_to_continue',
-                    'these_questions_count'
+                    'these_questions_count',
+                    'practice_question_answered_timed_out'
                 ],
                 correctTid = correctTids.indexOf(tid) !== -1;
 
-            if (tid === 'bonus_intro' || tid === 'these_questions_count') {
+            if (tid === 'bonus_intro' ||
+                tid === 'these_questions_count' ||
+                tid === 'practice_question_answered_timed_out') {
                 this.iterator();
                 return;
             }
@@ -156,7 +159,8 @@
                     'bonus_ready_to_continue',
                     'bonus_question_answered',
                     'practice_question_answered',
-                    'question_answered_done_bonus'
+                    'question_answered_done_bonus',
+                    'practice_question'
                 ],
                 correctTid = correctTids.indexOf(tid) !== -1;
 
@@ -165,7 +169,7 @@
                 return;
             }
 
-            if(tid === 'question'){
+            if (tid === 'question' || tid === 'practice_question') {
                 this.getQuestionHandler(response);
                 return;
             }
