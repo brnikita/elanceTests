@@ -25,6 +25,12 @@
          */
         apiPath: 'http://soshace.com/api/',
 
+        /**
+         * Метод возвращает API вопросов
+         *
+         * @method
+         * @returns {string}
+         */
         questionAPI: function () {
             var testName = this.testName;
 
@@ -62,6 +68,20 @@
             var _this = this;
 
             this.getQuestion().done(function (response) {
+                var tid = response[0].tid,
+                    correctTids = [
+                        'practice_question',
+                        'question',
+                        'bonus_question',
+                        'bonus_ready_to_continue'
+                    ],
+                    correctTid = correctTids.indexOf(tid) !== -1;
+
+                if (!correctTid) {
+                    console.log('Something wrong, tid:', tid);
+                    return;
+                }
+
                 var context = response[0].ctx,
                     question = context.question,
                     choices = context.choices;
@@ -71,8 +91,27 @@
                         answerNumber = choices.indexOf(answer),
                         timeOut = Math.floor((Math.random() * 2000) + 1);
 
+                    if (answerNumber === -1) {
+                        answerNumber = _this.getRandomChoice(choices);
+                    }
                     setTimeout(function () {
                         _this.checkQuestion(answerNumber).done(function (response) {
+                            var tid = response[0].tid,
+                                correctTids = [
+                                    'question_answered',
+                                    'question',
+                                    'bonus_question',
+                                    'bonus_ready_to_continue',
+                                    'bonus_question_answered',
+                                    'question_answered_done_bonus'
+                                ],
+                                correctTid = correctTids.indexOf(tid) !== -1;
+
+                            if (!correctTid) {
+                                console.log('Something wrong, tid:', tid);
+                                return;
+                            }
+
                             var context = response[0].ctx,
                                 answerNumber = context.answer,
                                 correct = context.correct,
@@ -92,6 +131,16 @@
                     }, timeOut);
                 })
             });
+        },
+
+        /**
+         * Метод возвращает рандомный ответ
+         *
+         * @method
+         * @param {Array} choices
+         */
+        getRandomChoice: function (choices) {
+            return Math.floor(Math.random() * choices.length);
         },
 
         /**
@@ -116,7 +165,7 @@
         getQuestion: function () {
             var time = this.getTime();
 
-            return $.post(this.questionAPI(), {
+            return this.ajax(this.questionAPI(), {
                 ts: time,
                 action: 'continue'
             });
@@ -132,10 +181,30 @@
         checkQuestion: function (answerNumber) {
             var time = this.getTime();
 
-            return $.post(this.questionAPI(), {
+            return this.ajax(this.questionAPI(), {
                 ts: time,
                 choice: answerNumber
             });
+        },
+
+        /**
+         * Метод выполняет POST запрос
+         *
+         * @method
+         * @return {jQuery.Deferred}
+         *
+         */
+        ajax: function (url, data) {
+            return $.ajax({
+                url: url,
+                dataType: "json",
+                type: "POST",
+                headers: {
+                    Accept: "application/json,application/vnd.smarterer.content-v2+json, */*; q=0.01",
+                    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+                },
+                data: data
+            })
         },
 
         /**
