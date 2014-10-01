@@ -89,11 +89,12 @@
                     'practice_question',
                     'question',
                     'bonus_question',
-                    'bonus_ready_to_continue'
+                    'bonus_ready_to_continue',
+                    'these_questions_count'
                 ],
                 correctTid = correctTids.indexOf(tid) !== -1;
 
-            if (tid === 'bonus_intro') {
+            if (tid === 'bonus_intro' || tid === 'these_questions_count') {
                 this.iterator();
                 return;
             }
@@ -149,6 +150,7 @@
                 correctTids = [
                     'question_answered',
                     'question',
+                    'question_answered_done',
                     'bonus_question',
                     'bonus_ready_to_continue',
                     'bonus_question_answered',
