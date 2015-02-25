@@ -93,7 +93,8 @@
                     'these_questions_count',
                     'practice_question_answered_timed_out',
                     'overtime_question',
-                    'overtime_question_answered_timed_out'
+                    'overtime_question_answered_timed_out',
+                    'overtime_out_of_questions'
                 ],
                 correctTid = correctTids.indexOf(tid) !== -1;
 
@@ -164,7 +165,8 @@
                     'question_answered_done_bonus',
                     'practice_question',
                     'overtime_question',
-                    'overtime_question_answered_timed_out'
+                    'overtime_question_answered_timed_out',
+                    'overtime_out_of_questions'
                 ],
                 correctTid = correctTids.indexOf(tid) !== -1;
 
