@@ -30,10 +30,6 @@ server {
         location /static/ { 
              alias /home/user/elanceTests/static/;
         }
-
-        location /media/ {
-           alias /home/user/media/;
-        }
 }
 </pre>
  
