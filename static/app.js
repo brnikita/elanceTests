@@ -1,6 +1,6 @@
-(function () {
+$(function () {
 
-    var app = {
+    var App = Class.extend({
         /**
          * Имя теста
          *
@@ -26,12 +26,20 @@
         questionChoices: null,
 
         /**
+         * It will be resolve after finish test
+         *
+         * @field
+         * @type {jQuery.Deferred}
+         */
+        finishDeferred: $.Deferred(),
+
+        /**
          * Поле содержит имя хоста и алиас API
          *
          * @field
          * @type {string}
          */
-        apiPath: 'http://soshace.com/api/',
+        apiPath: 'http://' + window.serverUrl + '/api/',
 
         /**
          * Метод возвращает API вопросов
@@ -47,12 +55,30 @@
 
         /**
          * @method
-         * @param {string} testName имя теста
+         * @param {Array || string} testName имя теста
+         * @param {Boolean} dataCollection If true, so need to close account after finish
          */
-        startTets: function (testName) {
-            this.testName = testName;
-            this._stopTest = false;
-            this.iterator();
+        startTets: function (testName, dataCollection) {
+            var testFinishDeffereds = [];
+
+            if (typeof testName === 'string') {
+                this.testName = testName;
+                this._stopTest = false;
+                this.iterator();
+                return this.finishDeferred;
+            }
+
+            if (testName instanceof Array) {
+                $.each(testName, function (index, value) {
+                    var app = new App();
+
+                    testFinishDeffereds.push(app.startTets(value, dataCollection));
+                });
+
+                //$.when.apply($, testFinishDeffereds).then(function(){
+                //    console.log('close Account!');
+                //});
+            }
         },
 
         /**
@@ -84,23 +110,24 @@
          */
         getQuestionHandler: function (response) {
             var tid = response[0].tid,
-            //TODO: разобраться, что значит каждый заголовок
                 correctTids = [
                     'practice_question',
                     'question',
                     'bonus_question',
                     'bonus_ready_to_continue',
                     'these_questions_count',
-                    'practice_question_answered_timed_out',
-                    'overtime_question',
-                    'overtime_question_answered_timed_out',
-                    'overtime_out_of_questions'
+                    'overtime_question'
+                ],
+                nextQuestionTid = [
+                    'bonus_intro',
+                    'these_questions_count',
+                    'overtime_intro',
+                    'out_of_questions_overtime',
+                    'overtime_question_answered_timed_out'
                 ],
                 correctTid = correctTids.indexOf(tid) !== -1;
 
-            if (tid === 'bonus_intro' ||
-                tid === 'these_questions_count' ||
-                tid === 'practice_question_answered_timed_out') {
+            if (nextQuestionTid.indexOf(tid) !== -1) {
                 this.iterator();
                 return;
             }
@@ -108,6 +135,7 @@
             console.log('--------------New question-----------------------------');
             if (!correctTid) {
                 console.log('Something is wrong, tid:', tid);
+                this.finishDeferred.resolve();
                 return;
             }
 
@@ -163,10 +191,8 @@
                     'bonus_question_answered',
                     'practice_question_answered',
                     'question_answered_done_bonus',
-                    'practice_question',
-                    'overtime_question',
-                    'overtime_question_answered_timed_out',
-                    'overtime_out_of_questions'
+                    'overtime_question_answered',
+                    'question_answered_done_overtime'
                 ],
                 correctTid = correctTids.indexOf(tid) !== -1;
 
@@ -175,7 +201,7 @@
                 return;
             }
 
-            if (tid === 'question' || tid === 'practice_question') {
+            if (tid === 'question') {
                 this.getQuestionHandler(response);
                 return;
             }
@@ -309,7 +335,7 @@
                 answer: answer
             });
         }
-    };
+    });
 
-    window.testHack = app;
-})();
+    window.testHack = new App();
+});

@@ -3,7 +3,9 @@ elanceTests
 
  В консоли выполнить:
 <pre>
-var staticPath = 'http://soshace.com/static/',
+serverUrl = 'server ip address';
+
+var staticPath = 'http://' + serverUrl + '/static/',
     script = document.createElement('script');
     script.src = staticPath + 'script.js';
 document.getElementsByTagName('head')[0].appendChild(script);
