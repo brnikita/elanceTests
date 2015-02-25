@@ -91,7 +91,9 @@
                     'bonus_question',
                     'bonus_ready_to_continue',
                     'these_questions_count',
-                    'practice_question_answered_timed_out'
+                    'practice_question_answered_timed_out',
+                    'overtime_question',
+                    'overtime_question_answered_timed_out'
                 ],
                 correctTid = correctTids.indexOf(tid) !== -1;
 
