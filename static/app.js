@@ -161,7 +161,8 @@
                     'practice_question_answered',
                     'question_answered_done_bonus',
                     'practice_question',
-                    'overtime_question'
+                    'overtime_question',
+                    'overtime_question_answered_timed_out'
                 ],
                 correctTid = correctTids.indexOf(tid) !== -1;
 
